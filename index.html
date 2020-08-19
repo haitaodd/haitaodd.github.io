@@ -229,6 +229,208 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="haitaodd.github.io/2020/08/19/kafka安全使用说明/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="haitao">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="海涛汪汪的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/08/19/kafka安全使用说明/" itemprop="url">kafka安全使用说明</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-08-19T10:24:19+08:00">
+                2020-08-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  275 字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  1 分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Kafka四种协议"><a href="#Kafka四种协议" class="headerlink" title="Kafka四种协议"></a>Kafka四种协议</h2><p>我使用的Kafka 1.10支持四种协议类型的访问：</p>
+<table>
+<thead>
+<tr>
+<th>协议类型</th>
+<th>说明</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PLAINTEXT</td>
+<td>无认证的明文访问</td>
+<td>默认开启</td>
+</tr>
+<tr>
+<td>SASL_PLAINTEXT</td>
+<td>支持Kerberos认证的明文访问</td>
+<td>默认开启</td>
+</tr>
+<tr>
+<td>SSL</td>
+<td>支持无认证的SSL加密访问</td>
+<td>ssl.mode.enable=true</td>
+</tr>
+<tr>
+<td>SASL_SSL</td>
+<td>支持Kerberos认证的SSL加密访问</td>
+<td>ssl.mode.enable=true</td>
+</tr>
+</tbody>
+</table>
+<p>SASL是一个鉴权（Authentication）协议，可以简单理解 加解密用户名和密码的。</p>
+<p>SSL是传输层安全协议，对整个内容加密。</p>
+<blockquote>
+<p>认证 –&gt; 授权 –&gt;  鉴权  –&gt; 权限控制</p>
+<p>Authentication（鉴权） vs   Authorization（授权）</p>
+<p>Authentication: 认证你就是你说的内个人，证明你就是你。</p>
+<p>Authorization:  赋予资源执行者对应范围的操作权限</p>
+</blockquote>
+<h2 id="Consumer的配置"><a href="#Consumer的配置" class="headerlink" title="Consumer的配置"></a>Consumer的配置</h2><ol>
+<li>SASL的鉴权机制，默认值为GSSAPI，如果裸奔账号密码，可以如下配置</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sasl.mechanism=PLAIN</span><br><span class="line"></span><br><span class="line"># 注意最后的分号，</span><br><span class="line">sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=&quot;[USERNAME]&quot; password=&quot;[PASSWORD]&quot;;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>如果<code>security.protocol=SASL_SSL</code>,   这里还需要添加truststore或者keystore</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssl.truststore.location=[jsk_path]</span><br><span class="line">ssl.truststore.password=[jks_password]</span><br></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a href="https://nifi.apache.org/docs/nifi-docs/components/org.apache.nifi/nifi-kafka-0-11-nar/1.7.1/org.apache.nifi.processors.kafka.pubsub.ConsumeKafkaRecord_0_11/additionalDetails.html" target="_blank" rel="noopener">Nifi ConsumeKafka Processor Detail</a></li>
+<li><a href="https://docs.cloudera.com/runtime/7.1.1/kafka-securing/topics/kafka-secure-ldap-client.html" target="_blank" rel="noopener">Configure Kafka clients</a></li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="haitaodd.github.io/2020/07/29/Maven工程添加本地第三方jar包/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1191,7 +1393,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
